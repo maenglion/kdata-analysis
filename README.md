@@ -91,8 +91,19 @@ actions tied to the current ChatGPT user. Leave public content anonymous.
 
 - `npm run dev`: start local development
 - `npm run build`: verify the vinext build output
+- `npm run build:netlify`: emit the Nitro Netlify Functions and static assets
 - `npm test`: build the starter and verify its rendered loading skeleton
 - `npm run db:generate`: generate Drizzle migrations after schema changes
+
+## Deployment targets
+
+- OpenAI Sites / Cloudflare: `npm run build` uses `vite.config.ts`.
+- Netlify: `netlify.toml` runs `npm run build:netlify`, which uses
+  `vite.config.netlify.ts` and Nitro's Netlify preset.
+
+For Netlify, select the `main` branch, leave the base directory at the repository
+root, and do not set a manual publish directory. Nitro writes the platform
+functions and static assets in the layout Netlify expects.
 
 ## Learn More
 
