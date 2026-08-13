@@ -90,7 +90,7 @@ code { font-family: "SFMono-Regular", Consolas, monospace; }
 .arrow { color: #aab3c2; }
 .status { display: inline-flex; align-items: center; justify-content: center; min-width: 42px; padding: 5px 8px; border-radius: 999px; font-size: 10px; font-weight: 900; white-space: nowrap; }
 .status-f { color: #057165; background: #dff7f2; }
-.status-r { color: #9a5a00; background: #fff1d6; }
+.status-i { color: #9a5a00; background: #fff1d6; }
 .status-u { color: #a4332b; background: #ffe8e5; }
 .status-e { color: #5a36be; background: #eee8ff; }
 
@@ -102,11 +102,15 @@ code { font-family: "SFMono-Regular", Consolas, monospace; }
 .filter-row button { min-width: 46px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); background: white; font-size: 11px; font-weight: 900; }
 .filter-row button.active { color: white; border-color: var(--navy); background: var(--navy); }
 .finding-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.finding-card { min-height: 205px; display: flex; flex-direction: column; padding: 20px; border: 1px solid var(--line); border-radius: 13px; background: #fbfcfe; }
+.finding-card { min-height: 320px; display: flex; flex-direction: column; padding: 20px; border: 1px solid var(--line); border-radius: 13px; background: #fbfcfe; }
 .finding-id { display: flex; align-items: center; justify-content: space-between; }
 .finding-id code { color: var(--blue); font-size: 12px; font-weight: 900; }
 .finding-card h3 { margin: 20px 0 8px; font-size: 16px; }
 .finding-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+.estimate-grid { display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; margin-top: 16px; padding: 12px; border-radius: 9px; background: #f0f3f8; }
+.estimate-grid span { color: var(--muted); font-size: 10px; }
+.estimate-grid b { color: var(--navy); font-size: 11px; }
+.finding-card .estimate-basis { margin-top: 10px; color: #56627a; font-size: 10px; }
 .finding-card footer { margin-top: auto; padding-top: 18px; color: #8a93a5; font-family: monospace; font-size: 10px; }
 
 .timeline { margin-top: 24px; }
@@ -123,6 +127,15 @@ code { font-family: "SFMono-Regular", Consolas, monospace; }
 .callout.warning { border-left-color: var(--amber); background: #fff8e9; }
 .callout b { color: var(--navy); font-size: 12px; }
 .callout p { margin: 0; color: #59647a; font-size: 12px; line-height: 1.7; }
+.callout > div > p + p { margin-top: 8px; }
+.callout-metrics { display: flex; flex-wrap: wrap; gap: 8px; }
+.callout-metrics b { padding: 5px 8px; border-radius: 6px; color: #8a5200; background: #ffe8b5; }
+.institution-fields { display: grid; grid-template-columns: 1fr 1.5fr; gap: 12px; margin: 24px 0 12px; }
+.institution-fields > div { padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: #f8faff; }
+.institution-fields span { display: block; margin-bottom: 8px; color: var(--blue); font-size: 10px; font-weight: 900; letter-spacing: .06em; }
+.institution-fields b { color: var(--navy); font-size: 14px; }
+.institution-fields p, .authority-focus { color: var(--muted); font-size: 11px; line-height: 1.7; }
+.authority-focus { margin: 0 0 18px; padding: 12px 16px; border-left: 3px solid var(--blue); background: #eef3ff; }
 
 .route-map { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; margin: 32px 0; }
 .route-step { position: relative; min-height: 174px; padding: 20px 16px; border: 1px solid var(--line); border-radius: 12px; background: #fafbfc; }
@@ -203,7 +216,7 @@ td code { color: var(--blue); font-size: 10px; font-weight: 800; }
   .panel { padding: 22px 16px; border-radius: 14px; }
   .section-title { align-items: start; flex-direction: column; gap: 8px; }
   .section-note { text-align: left; }
-  .finding-grid, .org-grid, .diff-grid, .route-map { grid-template-columns: 1fr; }
+  .finding-grid, .org-grid, .diff-grid, .route-map, .institution-fields { grid-template-columns: 1fr; }
   .timeline article { grid-template-columns: 34px 88px 1fr; padding: 10px 0; }
   .timeline aside { grid-column: 3; margin-top: 8px; }
   .callout { grid-template-columns: 1fr; gap: 8px; }
@@ -221,4 +234,3 @@ td code { color: var(--blue); font-size: 10px; font-weight: 800; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; }
 }
-
