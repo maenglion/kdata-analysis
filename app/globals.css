@@ -102,7 +102,7 @@ code { font-family: "SFMono-Regular", Consolas, monospace; }
 .filter-row button { min-width: 46px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); background: white; font-size: 11px; font-weight: 900; }
 .filter-row button.active { color: white; border-color: var(--navy); background: var(--navy); }
 .finding-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.finding-card { min-height: 320px; display: flex; flex-direction: column; padding: 20px; border: 1px solid var(--line); border-radius: 13px; background: #fbfcfe; }
+.finding-card { min-height: 340px; display: flex; flex-direction: column; padding: 20px; border: 1px solid var(--line); border-radius: 13px; background: #fbfcfe; }
 .finding-id { display: flex; align-items: center; justify-content: space-between; }
 .finding-id code { color: var(--blue); font-size: 12px; font-weight: 900; }
 .finding-card h3 { margin: 20px 0 8px; font-size: 16px; }
@@ -111,6 +111,9 @@ code { font-family: "SFMono-Regular", Consolas, monospace; }
 .estimate-grid span { color: var(--muted); font-size: 10px; }
 .estimate-grid b { color: var(--navy); font-size: 11px; }
 .finding-card .estimate-basis { margin-top: 10px; color: #56627a; font-size: 10px; }
+.narrowing-evidence { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); }
+.narrowing-evidence > b { color: var(--navy); font-size: 10px; }
+.narrowing-evidence ul { margin: 7px 0 0; padding-left: 16px; color: var(--muted); font-size: 9px; line-height: 1.55; }
 .finding-card footer { margin-top: auto; padding-top: 18px; color: #8a93a5; font-family: monospace; font-size: 10px; }
 
 .timeline { margin-top: 24px; }

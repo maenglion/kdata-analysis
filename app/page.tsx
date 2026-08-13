@@ -4,6 +4,19 @@ import { useMemo, useState } from "react";
 
 type Status = "F" | "I" | "U";
 
+type Finding = {
+  id: string;
+  status: Status;
+  title: string;
+  text: string;
+  evidence: string;
+  probability: string;
+  confidence: string;
+  probabilitySemantics: "confirmed" | "estimated" | "not_estimated";
+  basis: string;
+  narrowingEvidence?: string[];
+};
+
 const navItems = [
   ["overview", "분석 개요"],
   ["timeline", "시계열"],
@@ -15,82 +28,151 @@ const navItems = [
   ["history", "변경 이력"],
 ] as const;
 
-const findings: Array<{
-  id: string;
-  status: Status;
-  title: string;
-  text: string;
-  evidence: string;
-  probability: string;
-  confidence: string;
-  probabilitySemantics: "confirmed" | "estimated" | "not_estimated";
-  basis: string;
-}> = [
+const findings: Finding[] = [
   {
     id: "F-01",
     status: "F",
     title: "동일 현업 결재선",
-    text: "2026년 8월 개인정보 회신과 정보공개 결정이 데이터바우처 현업 결재선에서 처리됐다.",
+    text:
+      "2026년 8월 개인정보 회신과 정보공개 결정이 데이터바우처 현업 결재선에서 처리됐다.",
     evidence: "EV-001 · EV-002",
     probability: "95~100%",
     confidence: "99%",
     probabilitySemantics: "confirmed",
-    basis: "공식 결정통지와 결재선 대조",
+    basis: "공식 회신과 정보공개 결정통지의 결재선 대조",
   },
   {
     id: "F-02",
     status: "F",
     title: "인물 기준 연결·기술",
-    text: "8월 3일 회신은 서로 다른 법인·사업자료와 법원 사실조회 사실을 한 사람을 기준으로 연결했다.",
+    text:
+      "2026년 8월 3일 회신은 서로 다른 법인·사업자료와 법원 사실조회 사실을 한 사람을 기준으로 연결하여 기술했다.",
     evidence: "EV-002 · EV-003",
     probability: "95~100%",
     confidence: "98%",
     probabilitySemantics: "confirmed",
-    basis: "회신 내용과 선행 조사자료의 교차 확인",
+    basis: "개인정보 회신 원문과 선행 사실조회 자료의 교차 확인",
+  },
+  {
+    id: "F-03",
+    status: "F",
+    title: "1월부터 8월까지 사업부 처리경로",
+    text:
+      "법원 사실조회 촉탁과 그 회신, 이후 개인정보 권리행사와 정보공개 결정이 데이터바우처 사업부를 처리경로로 하였다.",
+    evidence: "EV-001 · EV-002 · EV-003",
+    probability: "95~100%",
+    confidence: "97%",
+    probabilitySemantics: "confirmed",
+    basis:
+      "사실조회 촉탁의 수신부서·회신과 8월 공식문서의 처리부서·결재선을 시계열로 대조",
+  },
+  {
+    id: "F-04",
+    status: "F",
+    title: "사업부 단위의 기능적 정보 누적",
+    text:
+      "법원 사실조회 자료, 과거 법인별 사업자료 및 개인정보·정보공개 권리행사 정보가 동일 사업부의 업무처리 과정에 순차적으로 유입된 사실이 확인된다.",
+    evidence: "EV-001 · EV-002 · EV-003",
+    probability: "95~100%",
+    confidence: "96%",
+    probabilitySemantics: "confirmed",
+    basis:
+      "동일 시스템 저장 여부와 별개로 서로 다른 목적의 자료가 동일 사업부의 처리범위에 들어온 사실",
   },
   {
     id: "I-01",
     status: "I",
-    title: "현업부서 정보 누적",
-    text: "목적이 다른 정보가 동일 시스템·문서철 또는 실질적 업무기억에 누적됐는지는 핵심 연결기록이 부족하다.",
+    title: "동일 저장소·권한그룹의 기술적 누적",
+    text:
+      "각 자료가 동일 시스템·문서철·공유폴더 또는 동일 접근권한 그룹에 저장됐는지는 추가확인이 필요하다.",
     evidence: "E-01 · E-02 · E-09 필요",
-    probability: "70~90%",
-    confidence: "70%",
+    probability: "75~90%",
+    confidence: "72%",
     probabilitySemantics: "estimated",
-    basis: "동일 결재선의 연속처리와 실제 인물 기준 연결",
+    basis:
+      "사업부 처리경로의 반복성과 8월 실제 연결은 확인됐으나 저장구조·권한표가 없음",
+    narrowingEvidence: [
+      "문서관리시스템 문서철 구조",
+      "공유폴더 및 업무시스템 권한그룹",
+      "접근권한 부여·변경 이력",
+      "문서별 보존위치와 보유기간",
+    ],
   },
   {
     id: "I-02",
     status: "I",
-    title: "2026년 심사 중 접근·노출",
-    text: "법원 사실조회 또는 결합정보가 3~4월 신청·심사 과정에 접근·노출됐는지는 추가확인이 필요하다.",
-    evidence: "E-01 · E-04 · E-07 필요",
-    probability: "45~70%",
-    confidence: "55%",
+    title: "2026년 심사 당시 접근 가능 상태",
+    text:
+      "3~4월 심사 담당자 또는 심사관리자가 법원 사실조회·과거 사업자료에 접근 가능한 권한을 보유했을 가능성이 높다.",
+    evidence: "E-01 · E-02 · E-07 필요",
+    probability: "80~95%",
+    confidence: "82%",
     probabilitySemantics: "estimated",
-    basis: "사실조회의 시간적 선행, 동일 현업부서의 자료 취급, 8월 실제 연결",
+    basis:
+      "사실조회가 심사보다 먼저 동일 사업부에서 처리됐고 해당 부서가 수요기업 심사와 기존 사업자료를 함께 소관",
+    narrowingEvidence: [
+      "2026년 3~4월 업무분장표",
+      "심사 담당자·관리자 명단",
+      "문서 및 시스템 접근권한표",
+      "겸무·직무대리·공람자 기록",
+    ],
   },
   {
     id: "I-03",
     status: "I",
-    title: "2026년 4월 탈락 영향",
-    text: "관련 정보가 실제 탈락 결정에 영향을 미쳤는지는 방향성 있는 단서는 있으나 직접 연결기록이 부족하다.",
-    evidence: "E-01 · E-03~E-06 필요",
-    probability: "20~45%",
-    confidence: "35%",
+    title: "2026년 심사 중 실제 조회·노출",
+    text:
+      "법원 사실조회 또는 결합정보가 3~4월 신청·심사 과정에서 실제 조회되거나 담당자에게 노출됐는지는 추가확인이 필요하다.",
+    evidence: "E-01 · E-04 · E-07 필요",
+    probability: "60~80%",
+    confidence: "68%",
     probabilitySemantics: "estimated",
-    basis: "접근·노출 가능성에서 실제 판단 이용에 필요한 추가 연결고리를 반영",
+    basis:
+      "사실조회의 시간적 선행, 동일 사업부의 반복 처리, 신청자료상 회사명·대표자명을 통한 인물 식별 가능성",
+    narrowingEvidence: [
+      "성명·회사명·사업자번호 검색기록",
+      "사실조회 문서 열람·다운로드 로그",
+      "신청서 및 과거 사업자료 조회로그",
+      "전자우편·업무메신저·공람 기록",
+    ],
+  },
+  {
+    id: "I-04",
+    status: "I",
+    title: "2026년 4월 탈락 결정 영향",
+    text:
+      "관련 정보가 실제 탈락 결정에 이용되거나 영향을 미쳤는지는 방향성 있는 단서가 있으나 판단 연결기록이 부족하다.",
+    evidence: "E-03 · E-04 · E-05 · E-06 필요",
+    probability: "30~55%",
+    confidence: "45%",
+    probabilitySemantics: "estimated",
+    basis:
+      "실제 노출 가능성은 상당하지만 노출과 점수·결격·탈락 결정 사이의 연결자료가 확보되지 않음",
+    narrowingEvidence: [
+      "항목별 평가점수와 평가의견",
+      "자동검증 규칙·실행결과·사유코드",
+      "0점·결격·제외 처리 이력",
+      "심사위원에게 제공된 자료",
+      "상태변경자·변경시각·변경 전후 값",
+      "내부 주의표시·민원·제재정보 연계 여부",
+    ],
   },
   {
     id: "U-01",
     status: "U",
-    title: "1월·8월 회신 작성자 동일성",
-    text: "작성자 동일성을 판단할 직접·간접 식별자료가 없어 확률을 산정하지 않는다.",
+    title: "1월·8월 실제 작성자 동일성",
+    text:
+      "1월 사실조회 회신과 8월 회신의 실제 작성자가 동일한지는 식별자료 부족으로 확률을 산정하지 않는다.",
     evidence: "E-07 필요",
     probability: "0% 표시",
     confidence: "0%",
     probabilitySemantics: "not_estimated",
-    basis: "not_estimated · 가능성이 실제 0이라는 뜻이 아님",
+    basis: "not_estimated · 실제 가능성이 0이라는 의미가 아님",
+    narrowingEvidence: [
+      "전자결재 기안자·검토자·결재자",
+      "문서 속성 및 버전이력",
+      "업무배정·공람·협조 기록",
+    ],
   },
 ];
 
@@ -118,7 +200,7 @@ const evidenceRows = [
   ["WEB-004", "개인정보처리방침 스냅샷", "A", "1,249 B", "340d…fb1f"],
 ];
 
-const requestRows = [
+const evidenceRequests = [
   ["E-01", "시스템 검색·열람·다운로드 로그", "P0", "회신 대기"],
   ["E-02", "권한그룹·부여·변경·말소 기록", "P0", "회신 대기"],
   ["E-03", "자격·요건 검토와 자동검증 결과", "P0", "청구 보강"],
@@ -174,7 +256,7 @@ export default function Home() {
         <div className="topbar-meta">
           <span className="private-dot" />
           비공개 검토본
-          <span className="version">v1.2 · 2026-08-13</span>
+          <span className="version">v1.3 · 2026-08-13</span>
         </div>
       </header>
 
@@ -213,11 +295,11 @@ export default function Home() {
             <div className="hero-ledger" aria-label="판정 현황">
               <div className="ledger-head">
                 <span>판정 스냅샷</span>
-                <code>MASTER / v1.2</code>
+                <code>MASTER / v1.3</code>
               </div>
               <div className="score-grid">
-                <div><b>08</b><span>확정 사실</span></div>
-                <div><b>03</b><span>불충분</span></div>
+                <div><b>10</b><span>확정 사실</span></div>
+                <div><b>04</b><span>불충분</span></div>
                 <div><b>03</b><span>미확정</span></div>
                 <div><b>12</b><span>필요 증거</span></div>
               </div>
@@ -258,6 +340,12 @@ export default function Home() {
                     <span>수치 의미</span><b>{finding.probabilitySemantics}</b>
                   </div>
                   <p className="estimate-basis">{finding.basis}</p>
+                  {finding.narrowingEvidence && (
+                    <div className="narrowing-evidence">
+                      <b>오차를 줄일 자료</b>
+                      <ul>{finding.narrowingEvidence.map((item) => <li key={item}>{item}</li>)}</ul>
+                    </div>
+                  )}
                   <footer>{finding.evidence}</footer>
                 </article>
               ))}
@@ -278,7 +366,7 @@ export default function Home() {
             </div>
             <div className="callout warning">
               <b>추가확인 필요 — 2026년 4월 탈락과 결합정보의 관련성</b>
-              <div><p>3월 신청과 4월 탈락은 확정 사실입니다. 법원 사실조회가 신청보다 먼저 처리됐고, 동일 현업부서가 과거 사업자료와 법원문서를 취급했으며, 8월 회신에서 인물 기준 연결이 실제 나타났습니다. 따라서 판단 불가능 단계가 아니라 <strong>불충분</strong> 판정의 적극적 조사대상입니다.</p><p className="callout-metrics"><b>접근·노출 45~70%</b><b>실제 탈락 영향 20~45%</b></p><p>평가점수, 자격검증, 자동 제외·0점 코드, 심사자 배정, 심사위원 제공자료, 사용자별 조회로그와 상태변경 이력으로 갱신합니다.</p></div>
+              <div><p>1월부터 8월까지 사업부 처리경로와 사업부 단위 기능적 누적은 <strong>확정</strong>입니다. 다음 검증 질문은 3~4월 심사 당시 누가 접근권한을 가졌고, 실제 무엇을 열었으며, 어떤 정보가 점수·상태변경에 들어갔는지입니다.</p><p className="callout-metrics"><b>접근 가능 상태 80~95%</b><b>실제 조회·노출 60~80%</b><b>탈락 영향 30~55%</b></p><p>업무분장·권한표, 사용자별 검색·조회로그, 평가점수, 자동검증·0점·결격 코드, 심사위원 제공자료와 상태변경 이력으로 갱신합니다.</p></div>
             </div>
           </section>
 
@@ -287,10 +375,10 @@ export default function Home() {
             <div className="route-map">
               {[
                 ["01", "법원 사실조회 촉탁", "E-07", "접수·배부·공람"],
-                ["02", "과거 사업자료 조회", "F-02", "인물 기준 연결·기술"],
-                ["03", "개인정보 권리행사", "F-01", "현업 결재선"],
-                ["04", "정보공개 결정", "F-03", "후속 공개범위 판단"],
-                ["05", "2026년·향후 사업심사", "I-02", "접근·노출 추가확인 및 분리"],
+                ["02", "사업부 처리경로", "F-03", "1월부터 8월까지 연속"],
+                ["03", "기능적 정보 누적", "F-04", "서로 다른 목적의 자료 유입"],
+                ["04", "2026년 사업심사", "I-02·03", "권한과 실제 조회 분리"],
+                ["05", "2026년 4월 탈락", "I-04", "점수·상태변경 연결 검증"],
               ].map(([num, title, code, text], index) => (
                 <div className="route-step" key={num}>
                   <span className="route-num">{num}</span>
@@ -358,7 +446,7 @@ export default function Home() {
               <table>
                 <thead><tr><th>ID</th><th>요구 기록</th><th>우선순위</th><th>상태</th></tr></thead>
                 <tbody>
-                  {requestRows.map((row) => (
+                  {evidenceRequests.map((row) => (
                     <tr key={row[0]}><td><code>{row[0]}</code></td><td>{row[1]}</td><td><span className={`priority ${row[2].toLowerCase()}`}>{row[2]}</span></td><td>{row[3]}</td></tr>
                   ))}
                 </tbody>
@@ -369,9 +457,14 @@ export default function Home() {
           <section id="history" className="panel section-anchor">
             <SectionTitle eyebrow="CHANGE LOG" title="변경 이력" note="판정 변경의 이유와 근거를 보존합니다." />
             <div className="history-row">
+              <div><code>v1.3</code><time>2026-08-13</time></div>
+              <div><h3>기능적 누적 확정과 심사 검증 단계 전진</h3><p>사업부 처리경로 연속성과 기능적 정보 누적을 확정으로 올리고, 기술적 저장·접근권한·실제 조회·탈락 영향의 네 층으로 분리했습니다.</p></div>
+              <span>현재 판본</span>
+            </div>
+            <div className="history-row">
               <div><code>v1.2</code><time>2026-08-13</time></div>
               <div><h3>인과 가능성과 기관 지위 정밀화</h3><p>4월 탈락 관련 쟁점을 불충분으로 고정하고 접근·노출 45~70%, 실제 영향 20~45%를 분리했습니다. 위험도 필드를 제거하고 기관 법적 분류와 해당 업무 수행 지위를 별도 필드로 뒀습니다.</p></div>
-              <span>현재 판본</span>
+              <span>이전 판본</span>
             </div>
             <div className="history-row">
               <div><code>v1.0</code><time>2026-08-13</time></div>
@@ -392,7 +485,7 @@ export default function Home() {
           <footer className="site-footer">
             <div><span className="brand-mark">K</span><b>K-DATA Evidence Ledger</b></div>
             <p>이 사이트는 비공개 분석 시연판입니다. 원본 증거와 개인식별정보를 포함하지 않습니다.</p>
-            <code>MASTER v1.2 · 2026-08-13 KST</code>
+            <code>MASTER v1.3 · 2026-08-13 KST</code>
           </footer>
         </div>
       </div>
