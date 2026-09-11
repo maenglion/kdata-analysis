@@ -282,7 +282,7 @@ export default function Home() {
           <section id="overview" className="hero section-anchor">
             <div className="hero-copy">
               <p className="eyebrow">REPRODUCIBLE DATA-LINEAGE AUDIT</p>
-              <h1>개인정보 처리와 결재경로를<br />증거 데이터셋으로 재구성하다</h1>
+              <h1>개인정보 처리, 결재경로<br />증거 데이터셋 구성 웹</h1>
               <p className="hero-lead">
                 8월 3일 회신의 인물 기준 연결·기술과 8월 7일 공개범위 판단을 분리하고,
                 확정·불충분·미확정 판정을 수치와 의미로 분리하고, 필요한 추가 증거를 독립된 코드로 관리합니다.
