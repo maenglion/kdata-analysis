@@ -15,3 +15,4 @@
 | 날짜 | 문서 | 상태 | 핵심 결정 |
 |---|---|---|---|
 | 2026-09-12 | [판정 재현 DB 및 6단계 상태체계](./2026-09-12-evaluation-database-and-status-model.md) | 채택·원격 적용 전 | K-DATA 전용 Supabase, 게이트 우선 판정, 설명가능 CSV, append-only 이력 |
+| 2026-09-12 | [게이트 우선순위 및 상태 경계 계약](./2026-09-12-gate-precedence-and-boundary-tests.md) | 채택·계약 검산 작성·원격 실행 전 | BLOCK·점수상한 분리, 다중 게이트 우선순위, 미평가 경계, 실질 결정 게이트 |

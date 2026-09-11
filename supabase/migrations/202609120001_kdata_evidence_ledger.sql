@@ -115,8 +115,10 @@ create table ledger.methodology_gates (
   status_cap text
     check (status_cap in ('confirmed', 'supported', 'conditional', 'insufficient', 'contradicted', 'unassessed')),
   is_core boolean not null default true,
+  gate_priority integer not null check (gate_priority > 0),
   display_order integer not null,
   unique (methodology_id, code),
+  unique (methodology_id, gate_priority),
   unique (id, code),
   check (effect = 'INFO' or score_cap is not null or status_cap is not null)
 );
@@ -169,6 +171,7 @@ create table ledger.evaluation_gate_results (
   score_cap numeric(6,3) check (score_cap between 0 and 100),
   status_cap text
     check (status_cap in ('confirmed', 'supported', 'conditional', 'insufficient', 'contradicted', 'unassessed')),
+  gate_priority integer not null check (gate_priority > 0),
   reason_code text not null check (length(trim(reason_code)) > 0),
   reason_text text not null check (length(trim(reason_text)) > 0),
   unique (run_id, gate_id),
@@ -435,11 +438,48 @@ begin
      or new.gate_name is distinct from gate_definition.name
      or new.effect is distinct from gate_definition.effect
      or new.score_cap is distinct from gate_definition.score_cap
-     or new.status_cap is distinct from gate_definition.status_cap then
+     or new.status_cap is distinct from gate_definition.status_cap
+     or new.gate_priority is distinct from gate_definition.gate_priority then
     raise exception 'gate result snapshot must match the versioned methodology gate';
   end if;
 
   return new;
+end;
+$$;
+
+create function ledger.decisive_gate_for_run(target_run_id uuid)
+returns text
+language plpgsql
+stable
+set search_path = ''
+as $$
+declare
+  decisive_code text;
+begin
+  -- BLOCK은 수치 상한이나 CAP보다 먼저 최종 상태를 insufficient로 제한한다.
+  select gate_code
+  into decisive_code
+  from ledger.evaluation_gate_results
+  where run_id = target_run_id and result = 'FAIL' and effect = 'BLOCK'
+  order by gate_priority, gate_code
+  limit 1;
+
+  if decisive_code is not null then
+    return decisive_code;
+  end if;
+
+  -- BLOCK이 없으면 가장 낮은 허용상태를 만드는 CAP이 결정 게이트다.
+  select gate_code
+  into decisive_code
+  from ledger.evaluation_gate_results
+  where run_id = target_run_id
+    and result = 'FAIL'
+    and effect = 'CAP'
+    and status_cap is not null
+  order by ledger.status_rank(status_cap), gate_priority, gate_code
+  limit 1;
+
+  return decisive_code;
 end;
 $$;
 
@@ -589,13 +629,7 @@ begin
   from ledger.evaluation_runs
   where id = new.run_id;
 
-  select egr.gate_code
-  into expected_decisive_gate_code
-  from ledger.evaluation_gate_results egr
-  join ledger.methodology_gates mg on mg.id = egr.gate_id
-  where egr.run_id = new.run_id and egr.result = 'FAIL' and egr.effect in ('BLOCK', 'CAP')
-  order by mg.display_order, egr.gate_code
-  limit 1;
+  expected_decisive_gate_code := ledger.decisive_gate_for_run(new.run_id);
 
   select count(*)
   into expected_factor_count
@@ -667,7 +701,7 @@ begin
   end if;
 
   if new.decisive_gate_code is distinct from expected_decisive_gate_code then
-    raise exception 'decisive_gate_code must be the first failed gate in methodology order';
+    raise exception 'decisive_gate_code must follow BLOCK > lowest CAP > gate_priority precedence';
   end if;
 
   if new.highest_evidence_grade is distinct from expected_highest_evidence_grade
