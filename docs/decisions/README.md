@@ -17,3 +17,7 @@
 | 2026-09-12 | [판정 재현 DB 및 6단계 상태체계](./2026-09-12-evaluation-database-and-status-model.md) | 채택·원격 적용 전 | K-DATA 전용 Supabase, 게이트 우선 판정, 설명가능 CSV, append-only 이력 |
 | 2026-09-12 | [게이트 우선순위 및 상태 경계 계약](./2026-09-12-gate-precedence-and-boundary-tests.md) | 채택·계약 검산 작성·원격 실행 전 | BLOCK·점수상한 분리, 다중 게이트 우선순위, 미평가 경계, 실질 결정 게이트 |
 | 2026-09-12 | [Ollama 도입 유보 및 반복 검산 전환 조건](./2026-09-12-ollama-deferred-verification-policy.md) | 채택·도입 유보 | 현재는 결정론적 검산 우선, 반복 수요 발생 시 설명가능성 린터로 제한 도입 |
+
+## 검증 기록
+
+- [2026-09-12 Supabase 원격 스키마 읽기 전용 검증](../verifications/2026-09-12-supabase-read-only-schema-verification.md)
