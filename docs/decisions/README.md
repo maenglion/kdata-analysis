@@ -21,3 +21,7 @@
 ## 검증 기록
 
 - [2026-09-12 Supabase 원격 스키마 읽기 전용 검증](../verifications/2026-09-12-supabase-read-only-schema-verification.md)
+
+## 사건 분석 기록
+
+- [2026-09-15 K-DATA 회신·SLDA 자료 유입 및 교차검산](../analysis/2026-09-15-kdata-response-slda-intake-and-cross-check.md)
