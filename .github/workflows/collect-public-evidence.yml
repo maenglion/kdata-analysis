@@ -1,0 +1,69 @@
+name: Collect K-DATA public evidence
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+      timezone: "Asia/Seoul"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kdata-public-evidence-collection
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pipeline/requirements.txt
+
+      - name: Install parser dependencies
+        run: python -m pip install --disable-pip-version-check -r pipeline/requirements.txt
+
+      - name: Verify parser contracts
+        env:
+          PYTHONPATH: pipeline/src
+        run: python -m unittest discover -s pipeline/tests -v
+
+      - name: Evaluate exact ten-day cadence
+        id: cadence
+        env:
+          PYTHONPATH: pipeline/src
+        run: echo "due=$(python -m evidence_ingest.cli due --epoch 2026-09-15 --until 2028-09-15 --interval-days 10 --timezone Asia/Seoul)" >> "$GITHUB_OUTPUT"
+
+      - name: Collect K-DATA targets
+        if: github.event_name == 'workflow_dispatch' || steps.cadence.outputs.due == 'true'
+        env:
+          PYTHONPATH: pipeline/src
+        run: python -m evidence_ingest.cli collect --profile pipeline/profiles/kdata.public.json --out work/collection --public-archive snapshots --timezone Asia/Seoul
+
+      - name: Commit public hash snapshot
+        if: github.event_name == 'workflow_dispatch' || steps.cadence.outputs.due == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add snapshots/kdata
+          if git diff --cached --quiet; then
+            echo "No public snapshot change to commit"
+            exit 0
+          fi
+          git commit -m "Record K-DATA public evidence snapshot"
+          git push
+
+      - name: Upload collection artifacts
+        if: (github.event_name == 'workflow_dispatch' || steps.cadence.outputs.due == 'true') && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kdata-public-evidence-${{ github.run_id }}
+          path: work/collection
+          if-no-files-found: error
+          retention-days: 90

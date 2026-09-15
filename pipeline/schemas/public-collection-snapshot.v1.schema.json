@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/evidence-ingest/public-collection-snapshot.v1.schema.json",
+  "title": "Public collection snapshot v1",
+  "type": "object",
+  "required": [
+    "snapshot_contract",
+    "snapshot_date",
+    "institution_id",
+    "documents",
+    "failures",
+    "snapshot_sha256"
+  ],
+  "properties": {
+    "snapshot_contract": {"const": "public-collection-snapshot/1.0.0"},
+    "snapshot_date": {"type": "string", "format": "date"},
+    "institution_id": {"type": "string", "minLength": 1},
+    "documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["requested_url", "final_url", "projection"],
+        "properties": {
+          "requested_url": {"type": "string", "format": "uri"},
+          "final_url": {"type": "string", "format": "uri"},
+          "projection": {"type": "object"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source_id", "error_type"],
+        "properties": {
+          "source_id": {"type": "string"},
+          "error_type": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "snapshot_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "additionalProperties": false
+}

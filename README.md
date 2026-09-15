@@ -1,111 +1,56 @@
-# vinext-starter
+# K-DATA Evidence Ledger
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+K-DATA의 개인정보 처리, 결재경로, 사업심사 및 정보공개 처리 과정을 재현 가능한 증거 데이터셋으로 구조화하는 프로젝트다. 사실과 추론을 분리하고, 루브릭 입력·게이트·6단계 판정·사유·변경 이력을 연결한다.
 
-## Prerequisites
+- 배포: <https://kdata-evidence-ledger.netlify.app/>
+- 기관 분류: 한국데이터산업진흥원(K-DATA)
+- KODIT와 저장소·DB·배포·환경변수·원자료를 공유하지 않는다.
 
-- Node.js `>=22.13.0`
+## 판정 원칙
 
-## Quick Start
+최종 상태는 `confirmed`, `supported`, `conditional`, `insufficient`, `contradicted`, `unassessed`의 6단계다. 점수는 분석축이며 상태를 직접 결정하지 않는다. 상태는 버전이 고정된 방법론의 게이트 결과로 산출하고, 실패 게이트·부족증거·결정 게이트를 함께 저장한다. 기존 판정은 덮어쓰지 않고 새 evaluation run으로 이력을 남긴다.
 
-```bash
+## 구성
+
+- `app/`: React 19·Vinext 화면
+- `pipeline/`: HWP·HWPX·PDF 수집·전문 추출·DRM 분류·SHA-256·결정적 투영
+- `supabase/migrations/`: K-DATA 전용 원장·루브릭·게이트·수집 투영 스키마
+- `supabase/tests/`: DB 판정 엔진 계약 테스트
+- `docs/decisions/`: 중요한 설계·운영 결정
+- `docs/verifications/`: 실행·원격 상태 검증 기록
+
+파서 실행법과 공개/내부 출력 경계는 [pipeline/README.md](./pipeline/README.md)를 따른다.
+
+## 로컬 실행
+
+요구사항: Node.js 22.13.0 이상, npm, Python 3.11 이상.
+
+```powershell
 npm install
 npm run dev
-npm run build
+
+python -m pip install -r pipeline/requirements.txt
+$env:PYTHONPATH = "pipeline/src"
+python -m unittest discover -s pipeline/tests -v
 ```
 
-This starter does not use `wrangler.jsonc`.
+Netlify 빌드는 `npm run build:netlify`이며 `netlify.toml`과 Nitro Netlify preset을 사용한다. 수동 publish directory를 지정하지 않는다.
 
-## Included Shape
+## 데이터·보안 경계
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
+- 원본 사건자료, 전문, 개인정보, 로컬 절대경로, 인증정보를 공개 저장소에 넣지 않는다.
+- 공개 화면에는 승인된 증거번호·등급·축약/공개 해시·판정 결과만 표시한다.
+- 수집 파이프라인의 `raw`와 `internal` 산출물은 Git에서 제외한다.
+- DRMONE/FASOO 문서는 식별만 하고 우회하지 않는다.
+- Supabase의 RLS 활성화와 실제 policy/grant는 별도 검증한다. publish View가 존재해도 명시적 승인 전에는 브라우저 접근을 열지 않는다.
 
-## Workspace Auth Headers
+## 현재 작업 순서
 
-Signed-in visitors receive both `oai-authenticated-user-id` and `oai-authenticated-user-email`. Private Sites require every visitor to sign in; public Sites may also have anonymous visitors, for whom neither header is present.
+1. 수집·파서 runtime contract 검산
+2. 원격 Supabase drift를 읽기 전용으로 대조
+3. RLS policy·역할별 접근 계약 확정
+4. 원자료와 claim unit 비공개 적재
+5. 루브릭 기반 evaluation run 생성·검산
+6. 인간 승인된 최신 run으로 화면 상수 교체
 
-The user ID is stable for the same user on the same Site and different across Sites. Email and name are intended for display or contact purposes.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const userId = requestHeaders.get("oai-authenticated-user-id");
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
-```
-
-## Optional Dispatch-Owned ChatGPT Sign-In
-
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
-
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
-
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
-
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
-
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
-
-## Useful Commands
-
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm run build:netlify`: emit the Nitro Netlify Functions and static assets
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
-
-## Deployment targets
-
-- OpenAI Sites / Cloudflare: `npm run build` uses `vite.config.ts`.
-- Netlify: `netlify.toml` runs `npm run build:netlify`, which uses
-  `vite.config.netlify.ts` and Nitro's Netlify preset.
-
-For Netlify, select the `main` branch, leave the base directory at the repository
-root, and do not set a manual publish directory. Nitro writes the platform
-functions and static assets in the layout Netlify expects.
-
-## Learn More
-
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+중요한 변경은 코드만 고치지 않고 [의사결정 기록](./docs/decisions/README.md)과 검증 기록에 함께 남긴다.

@@ -1,0 +1,15 @@
+{
+  "profile_contract": "institution-collection-profile/1.0.0",
+  "institution_id": "kodit",
+  "display_name": "신용보증기금",
+  "allowed_hosts": ["www.kodit.co.kr"],
+  "user_agent": "KODITEvidenceCollector/1.0 (+public-record-integrity; contact=repository-owner)",
+  "targets": [
+    {
+      "source_id": "kodit-pre-disclosure-index-example",
+      "url": "https://www.kodit.co.kr/kodit/na/ntt/selectNttList.do?bbsId=1002&mi=2806&ps=461",
+      "expected_terms": ["신용보증기금", "정보공개"],
+      "enabled": false
+    }
+  ]
+}

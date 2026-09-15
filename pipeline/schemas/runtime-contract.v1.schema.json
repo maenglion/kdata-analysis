@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/evidence-ingest/runtime-contract.v1.schema.json",
+  "title": "Evidence ingest runtime contract v1",
+  "type": "object",
+  "required": [
+    "runtime_contract",
+    "parser_version",
+    "institution_id",
+    "source_id",
+    "source_filename",
+    "source_sha256",
+    "source_bytes",
+    "detection",
+    "extraction",
+    "extraction_confidence",
+    "confidence_factors",
+    "normalized_text_sha256",
+    "normalized_character_count",
+    "expected_terms",
+    "matched_terms"
+  ],
+  "properties": {
+    "runtime_contract": {"const": "evidence-ingest-runtime/1.0.0"},
+    "parser_version": {"type": "string"},
+    "institution_id": {"type": "string", "minLength": 1},
+    "source_id": {"type": "string", "minLength": 1},
+    "source_filename": {"type": "string", "minLength": 1},
+    "source_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source_bytes": {"type": "integer", "minimum": 0},
+    "detection": {
+      "type": "object",
+      "required": ["container_format", "media_type", "protection_status", "drm_vendor", "confidence", "basis"],
+      "properties": {
+        "container_format": {"type": "string"},
+        "media_type": {"type": "string"},
+        "protection_status": {"enum": ["clear", "protected", "unknown"]},
+        "drm_vendor": {"type": ["string", "null"]},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "basis": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "extraction": {
+      "type": "object",
+      "required": ["status", "text", "parser_name", "unit_total", "unit_with_text", "metadata", "warnings"],
+      "properties": {
+        "status": {"enum": ["extracted", "empty", "needs_ocr", "protected", "unsupported", "invalid", "parser_unavailable"]},
+        "text": {"type": "string"},
+        "parser_name": {"type": "string"},
+        "unit_total": {"type": "integer", "minimum": 0},
+        "unit_with_text": {"type": "integer", "minimum": 0},
+        "metadata": {"type": "object"},
+        "warnings": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "extraction_confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+    "confidence_factors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "value", "weight", "basis"],
+        "properties": {
+          "code": {"type": "string"},
+          "value": {"type": "number", "minimum": 0, "maximum": 1},
+          "weight": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+          "basis": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "normalized_text_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "normalized_character_count": {"type": "integer", "minimum": 0},
+    "expected_terms": {"type": "array", "items": {"type": "string"}},
+    "matched_terms": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

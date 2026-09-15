@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "public-institution-evidence-ingest"
+version = "0.1.0"
+description = "Deterministic public-institution document ingestion and evidence projection"
+requires-python = ">=3.11"
+dependencies = [
+  "olefile>=0.47,<1",
+  "pypdf>=6,<7",
+]
+
+[project.scripts]
+evidence-ingest = "evidence_ingest.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

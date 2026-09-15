@@ -44,3 +44,7 @@ yarn-error.log*
 /work/
 /.npm-cache/
 /.logs/
+
+# Python parser caches
+__pycache__/
+*.py[cod]

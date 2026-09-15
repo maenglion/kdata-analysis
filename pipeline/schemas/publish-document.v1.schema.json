@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/evidence-ingest/publish-document.v1.schema.json",
+  "title": "Deterministic public document projection v1",
+  "type": "object",
+  "required": [
+    "publish_contract",
+    "document_id",
+    "institution_id",
+    "source_id",
+    "source_sha256",
+    "detected_format",
+    "protection_status",
+    "extraction_status",
+    "extraction_confidence_factors",
+    "normalized_text_sha256",
+    "unit_count",
+    "parser_version",
+    "projection_sha256"
+  ],
+  "properties": {
+    "publish_contract": {"const": "evidence-publish-document/1.0.0"},
+    "document_id": {"type": "string", "pattern": "^doc-[0-9a-f]{64}$"},
+    "institution_id": {"type": "string"},
+    "source_id": {"type": "string"},
+    "source_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "detected_format": {"type": "string"},
+    "protection_status": {"type": "string"},
+    "extraction_status": {"type": "string"},
+    "extraction_confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+    "extraction_confidence_factors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "value", "weight", "basis"],
+        "properties": {
+          "code": {"type": "string"},
+          "value": {"type": "number", "minimum": 0, "maximum": 1},
+          "weight": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+          "basis": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "normalized_text_sha256": {"type": ["string", "null"]},
+    "unit_count": {"type": "integer", "minimum": 0},
+    "parser_version": {"type": "string"},
+    "projection_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "additionalProperties": false
+}

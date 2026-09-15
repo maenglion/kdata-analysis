@@ -1,0 +1,39 @@
+{
+  "profile_contract": "institution-collection-profile/1.0.0",
+  "institution_id": "kdata",
+  "display_name": "한국데이터산업진흥원",
+  "allowed_hosts": ["kdata.or.kr", "www.kdata.or.kr", "web.archive.org"],
+  "user_agent": "KDATAEvidenceLedger/1.0 (+public-record-integrity; contact=repository-owner)",
+  "targets": [
+    {
+      "source_id": "kdata-organization-current",
+      "url": "https://www.kdata.or.kr/kr/contents/organ/view.do",
+      "expected_terms": ["조직도", "담당업무"],
+      "enabled": true
+    },
+    {
+      "source_id": "kdata-information-disclosure-process",
+      "url": "https://www.kdata.or.kr/kr/contents/open_02/view.do",
+      "expected_terms": ["정보공개", "업무처리"],
+      "enabled": true
+    },
+    {
+      "source_id": "kdata-code-of-conduct",
+      "url": "https://www.kdata.or.kr/kr/contents/norms_01/view.do",
+      "expected_terms": ["행동강령"],
+      "enabled": true
+    },
+    {
+      "source_id": "kdata-organization-wayback-20220705055818",
+      "url": "https://web.archive.org/web/20220705055818id_/https://kdata.or.kr/kr/contents/organ/view.do",
+      "expected_terms": ["사업운영팀", "평가협약팀", "활용기획팀"],
+      "enabled": true
+    },
+    {
+      "source_id": "kdata-organization-wayback-20230306065437",
+      "url": "https://web.archive.org/web/20230306065437id_/https://kdata.or.kr/kr/contents/organ/view.do",
+      "expected_terms": ["데이터바우처", "감사실"],
+      "enabled": true
+    }
+  ]
+}
