@@ -5,3 +5,4 @@
 | 검증일 | 기록 | 결과 |
 |---|---|---|
 | 2026-09-12 | [Supabase 원격 스키마 읽기 전용 검증](./2026-09-12-supabase-read-only-schema-verification.md) | `MATCH_WITH_UNVERIFIED_TEST_HISTORY` |
+| 2026-09-15 | [Supabase 컬럼·적재 현황 및 DeepSeek 교차검증 입력](./2026-09-15-supabase-column-inventory-for-cross-check.md) | `DRIFT` — 원격 전용 빈 테이블 4개 |
