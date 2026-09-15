@@ -53,9 +53,18 @@ K-DATA 현재 페이지 3개와 Wayback 조직도 2개를 allowlist를 통해 �
 
 현재 검증은 선택한 표본과 공개 URL에 대한 것이다. 모든 HWP 변형, 손상 PDF, 스캔 PDF, DRM 제품 버전을 포괄한다는 의미는 아니다. 스캔 PDF는 `needs_ocr`로 분기하며 OCR 자체는 아직 구현하지 않았다.
 
+## GitHub Actions 호스팅 검증
+
+- run: `34961232947`
+- 결과: success
+- parser contract test, 10일 주기 판정, 5개 URL 수집, 공개 스냅샷 커밋, 90일 Artifact 업로드: 전 단계 성공
+- 자동 스냅샷 commit: `2304b746260846b4eb2527cd9d8513c22378b40e`
+- 최종 snapshot SHA-256: `4205cd88657690e31ed03a52dfcf0b470fd949ffe5681dd241ae294d61c9816b`
+
+로컬 수집과 Actions 수집 사이에서 현재 K-DATA 3개 페이지의 원본 바이트 해시는 달라졌으나 정규화 전문 해시는 5개 모두 동일했다. 이는 서버가 생성한 비가시적·동적 HTML 변화와 실제 추출 전문 변화를 원본 SHA-256과 정규화 SHA-256의 두 축으로 구분해야 한다는 설계를 실증한다.
+
 ## 다음 단계
 
-1. GitHub Actions 수동 실행으로 호스팅 환경에서 동일 결과 확인
-2. 10일 주기 첫 예약 실행의 Artifact·해시 확인
-3. DRM/손상/스캔 표본이 생길 때 회귀 테스트 추가
-4. 원격 수집 테이블과 migration의 타입·제약을 read-only로 대조한 뒤 DB 적용 여부 결정
+1. 10일 주기 첫 예약 실행의 Artifact·해시 확인
+2. DRM/손상/스캔 표본이 생길 때 회귀 테스트 추가
+3. 원격 수집 테이블과 migration의 타입·제약을 read-only로 대조한 뒤 DB 적용 여부 결정
